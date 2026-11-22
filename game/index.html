@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pasang &amp; Purnama — Duel Kartu Tiga Pantai</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="table">
+  <header id="topbar">
+    <div class="brand">Pasang &amp; Purnama</div>
+    <div id="tide" class="tide" aria-live="polite"></div>
+    <div id="round" class="round"></div>
+  </header>
+
+  <section id="foe-side" class="side" aria-label="Tangan lawan">
+    <div class="side-head">
+      <span class="side-name">Lawan · Sang Penjaga Ombak</span>
+      <span class="life" id="foe-life"></span>
+      <span class="score" id="foe-score"></span>
+      <span class="energy" id="foe-energy"></span>
+    </div>
+    <div id="foe-hand" class="hand hand-small"></div>
+  </section>
+
+  <main id="lanes" aria-label="Tiga jalur pantai">
+    <div class="lane" data-lane="0">
+      <div class="lane-name">Pantai Utara</div>
+      <div class="lane-row foe-row"></div>
+      <div class="lane-mid"><span class="lane-power"></span><span class="lane-mark"></span></div>
+      <div class="lane-row you-row"></div>
+    </div>
+    <div class="lane" data-lane="1">
+      <div class="lane-name">Pantai Tengah</div>
+      <div class="lane-row foe-row"></div>
+      <div class="lane-mid"><span class="lane-power"></span><span class="lane-mark"></span></div>
+      <div class="lane-row you-row"></div>
+    </div>
+    <div class="lane" data-lane="2">
+      <div class="lane-name">Pantai Selatan</div>
+      <div class="lane-row foe-row"></div>
+      <div class="lane-mid"><span class="lane-power"></span><span class="lane-mark"></span></div>
+      <div class="lane-row you-row"></div>
+    </div>
+  </main>
+
+  <section id="you-side" class="side" aria-label="Tanganmu">
+    <div class="side-head">
+      <span class="side-name">Kamu</span>
+      <span class="life" id="you-life"></span>
+      <span class="score" id="you-score"></span>
+      <span class="energy" id="you-energy"></span>
+      <button id="end-round" type="button">Akhiri Ronde ⏎</button>
+    </div>
+    <div id="you-hand" class="hand"></div>
+    <p id="hint">Pilih satu kartu, lalu klik jalur pantainya. Kartu sejenis pasang dapat +2.</p>
+  </section>
+
+  <div id="overlay" class="overlay hidden" role="dialog" aria-live="polite">
+    <div class="overlay-card">
+      <div id="overlay-glyph" class="overlay-glyph"></div>
+      <h1 id="overlay-title"></h1>
+      <p id="overlay-text"></p>
+      <p id="overlay-score" class="overlay-score"></p>
+      <button id="overlay-button" type="button"></button>
+    </div>
+  </div>
+
+  <p id="status" role="status" aria-live="polite"></p>
+</div>
+<script type="module" src="./src/main.mjs"></script>
+</body>
+</html>

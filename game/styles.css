@@ -1,0 +1,175 @@
+/* Pasang & Purnama — the beach at night: deep water, warm sand, full moon. */
+:root {
+  --sand: #f3e3c2;
+  --ink: #14202e;
+  --water: #0e2a3d;
+  --water-deep: #081826;
+  --foam: #bfe6ef;
+  --gold: #f2c14e;
+  --coral: #ff7a59;
+  --teal: #2fb3d8;
+  --leaf: #58c98a;
+  --card-w: 96px;
+  --card-h: 132px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--water-deep); }
+body {
+  font-family: "Avenir Next", "Segoe UI", Verdana, sans-serif;
+  color: var(--sand);
+}
+#table {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1100px 300px at 50% -60px, #274b63 0%, transparent 70%),
+    linear-gradient(180deg, #0e2a3d 0%, #123a52 46%, #0d2f45 100%);
+  padding: 10px 18px 8px;
+}
+#topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 2px 4px 8px;
+}
+.brand {
+  font-size: 24px; font-weight: 800; letter-spacing: 1px; color: var(--sand);
+  text-shadow: 0 2px 10px rgba(0,0,0,.5);
+}
+.tide {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(8, 24, 38, .65); border: 2px solid var(--gold);
+  border-radius: 999px; padding: 6px 18px;
+  font-size: 19px; font-weight: 700; color: #fff;
+}
+.tide .glyph { font-size: 30px; line-height: 1; }
+.tide .bonus { color: var(--gold); }
+.round { font-size: 18px; font-weight: 700; color: var(--foam); }
+
+.side { flex: 0 0 auto; }
+.side-head {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 17px; font-weight: 700; padding: 2px 4px 6px;
+}
+.side-name { color: #fff; }
+.life, .score, .energy { color: var(--foam); }
+.life b, .score b { color: #fff; font-size: 20px; }
+#end-round {
+  margin-left: auto; font: inherit; font-size: 17px; font-weight: 800;
+  color: var(--ink); background: var(--gold); border: 0; border-radius: 999px;
+  padding: 8px 20px; cursor: pointer; box-shadow: 0 3px 0 #a97f1e;
+}
+#end-round:hover { filter: brightness(1.08); }
+#end-round:disabled { opacity: .45; cursor: default; }
+
+.hand {
+  display: flex; gap: 10px; justify-content: center;
+  min-height: calc(var(--card-h) + 8px); padding: 2px 0 4px;
+}
+.hand-small { min-height: 96px; }
+.hand-small .card { --card-w: 62px; --card-h: 86px; cursor: default; }
+.hand-small .card .value { font-size: 26px; }
+.hand-small .card .glyph { font-size: 26px; }
+.hand-small .card .suit-name { font-size: 9px; }
+.hand-small .card .cost { font-size: 11px; }
+
+#lanes {
+  flex: 1 1 auto; display: flex; gap: 14px; min-height: 0; padding: 4px 0;
+}
+.lane {
+  flex: 1; display: flex; flex-direction: column;
+  background: rgba(255, 255, 255, .06);
+  border: 2px solid rgba(191, 230, 239, .35); border-radius: 14px;
+  padding: 6px 8px;
+}
+.lane.target { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(242, 193, 78, .35); }
+.lane-name {
+  text-align: center; font-size: 15px; font-weight: 800; color: var(--foam);
+  letter-spacing: .5px; padding-bottom: 4px;
+}
+.lane-row {
+  flex: 1; display: flex; gap: 8px; align-items: center; justify-content: center;
+  min-height: 96px;
+}
+.lane-row .card { --card-w: 74px; --card-h: 102px; cursor: default; animation: snap .28s ease-out; }
+.lane-row .card .value { font-size: 30px; }
+.lane-row .card .glyph { font-size: 30px; }
+.lane-mid {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  border-top: 2px dashed rgba(191, 230, 239, .35);
+  border-bottom: 2px dashed rgba(191, 230, 239, .35);
+  padding: 3px 0; font-size: 17px; font-weight: 800; color: #fff;
+  min-height: 30px;
+}
+.lane-mark { color: var(--gold); font-size: 20px; }
+.lane.won-you .lane-mid { background: rgba(88, 201, 138, .18); }
+.lane.won-foe .lane-mid { background: rgba(255, 122, 89, .18); }
+
+.card {
+  width: var(--card-w); height: var(--card-h);
+  border-radius: 12px; background: #fdf8ec; color: var(--ink);
+  border: 3px solid var(--suit, #888);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; cursor: pointer; position: relative;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .35);
+  animation: deal .35s ease-out;
+  user-select: none;
+}
+.card:hover { transform: translateY(-6px); }
+.card.selected {
+  transform: translateY(-12px);
+  outline: 4px solid var(--gold); outline-offset: 2px;
+}
+.card.tide-card { box-shadow: 0 0 0 3px var(--gold), 0 4px 0 rgba(0, 0, 0, .35); }
+.card .value { font-size: 40px; font-weight: 900; line-height: 1; color: var(--suit, #333); }
+.card .glyph { font-size: 38px; line-height: 1; color: var(--suit, #333); }
+.card .suit-name { font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+.card .cost {
+  position: absolute; top: 4px; right: 7px;
+  font-size: 14px; font-weight: 900; color: #8a6d1f; letter-spacing: 1px;
+}
+.card .cost::before { content: "◆"; color: var(--gold); margin-right: 2px; }
+.card.unaffordable { opacity: .45; }
+.card.unaffordable:hover { transform: none; }
+
+@keyframes deal {
+  from { transform: translateY(-18px) rotate(-3deg); opacity: 0; }
+  to { transform: translateY(0) rotate(0); opacity: 1; }
+}
+@keyframes snap {
+  from { transform: scale(.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes winpulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.lane.won-you { animation: winpulse .5s ease-in-out 2; }
+
+#hint { text-align: center; color: var(--foam); font-size: 14px; margin: 2px 0 0; }
+
+.overlay {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(4, 12, 20, .72);
+}
+.overlay.hidden { display: none; }
+.overlay-card {
+  width: 620px; max-width: 92vw; text-align: center;
+  background: linear-gradient(180deg, #123a52, #0a2233);
+  border: 3px solid var(--gold); border-radius: 20px; padding: 28px 30px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .6);
+}
+.overlay-glyph { font-size: 72px; line-height: 1; }
+.overlay-card h1 { font-size: 44px; margin: 8px 0 4px; color: #fff; }
+.overlay-card p { font-size: 18px; line-height: 1.5; color: var(--foam); margin: 8px 0; }
+.overlay-score { font-size: 20px; font-weight: 800; color: #fff; }
+.overlay-card button {
+  font: inherit; font-size: 20px; font-weight: 800; color: var(--ink);
+  background: var(--gold); border: 0; border-radius: 999px; padding: 12px 34px;
+  cursor: pointer; margin-top: 10px; box-shadow: 0 3px 0 #a97f1f;
+}
+.overlay-card button:hover { filter: brightness(1.08); }
+.overlay.win .overlay-card { border-color: var(--leaf); animation: winpulse .6s ease-in-out 3; }
+.overlay.lose .overlay-card { border-color: var(--coral); }
+
+#status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
