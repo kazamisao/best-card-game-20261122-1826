@@ -73,7 +73,9 @@ export function stageShot(name, seed) {
   if (name === 'lose') {
     const game = newGame(seed);
     startRound(game);
-    playOut(game, () => {});
+    // A weak but active line: one strong card a round, so the table shows a
+    // real duel being lost, not a player who never played.
+    playOut(game, (g) => playerStrong(g, 1));
     return { game, screen: game.winner === 'foe' ? 'lose' : 'duel' };
   }
   if (name === 'duel') {

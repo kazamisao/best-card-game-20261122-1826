@@ -77,14 +77,15 @@ export function renderGame(game, ui) {
     for (const card of lane.foe) foeRow.appendChild(buildCardElement(card, game.tide));
     youRow.replaceChildren();
     for (const card of lane.you) youRow.appendChild(buildCardElement(card, game.tide));
-    const yours = lane.you.length + lane.foe.length > 0
+    const laneHasCards = lane.you.length + lane.foe.length > 0;
+    const yours = laneHasCards
       ? lanePower(lane.you, game.tide)
-      : game.lastPowers[index][0];
-    const theirs = lane.you.length + lane.foe.length > 0
+      : game.justResolved ? game.lastPowers[index][0] : 0;
+    const theirs = laneHasCards
       ? lanePower(lane.foe, game.tide)
-      : game.lastPowers[index][1];
+      : game.justResolved ? game.lastPowers[index][1] : 0;
     powerEl.textContent = `${yours} — ${theirs}`;
-    const result = game.lastResults[index];
+    const result = game.justResolved ? game.lastResults[index] : null;
     laneEl.classList.toggle('won-you', result === 'you');
     laneEl.classList.toggle('won-foe', result === 'foe');
     markEl.textContent = result === 'you' ? '★ Kamu' : result === 'foe' ? '★ Lawan' : '';

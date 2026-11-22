@@ -7,7 +7,7 @@ import { buildDeck, shuffleDeck, drawCards, SUITS } from '../game/src/deck.mjs';
 import { tideBoost, nextTideSuit, isTideSuit } from '../game/src/tide.mjs';
 import { lanePower, resolveLane, resolveRound, gameWinner } from '../game/src/rules.mjs';
 import { choosePlay } from '../game/src/ai.mjs';
-import { newGame, startRound, playCard, endRound } from '../game/src/state.mjs';
+import { newGame, startRound, playCard, endRound, tiebreakWinner } from '../game/src/state.mjs';
 import { mulberry32 } from '../game/src/random.mjs';
 
 const card = (suit, value) => ({
@@ -209,6 +209,46 @@ test('state: ending a round keeps the last lane powers for the display', () => {
   endRound(game);
   const expected = played.value + (played.suit === tide ? 2 : 0);
   assert.equal(game.lastPowers[0][0], expected);
+});
+
+test('state: ending a round marks it just resolved until a card is played', () => {
+  const game = newGame(42);
+  startRound(game);
+  assert.equal(game.justResolved, false);
+  endRound(game);
+  assert.equal(game.justResolved, true);
+  const played = game.you.hand.find((c) => c.cost <= game.you.energy);
+  playCard(game, 'you', played.id, 0);
+  assert.equal(game.justResolved, false);
+});
+
+test('state: a double knockout goes to the tiebreak, not to the first if', () => {
+  const game = newGame(42);
+  startRound(game);
+  game.you.life = 2;
+  game.foe.life = 2;
+  // You win lane 0 with a 9, foe wins lane 1 with a 3: both lives hit 0,
+  // scores tie 1-1, but your played power (11) beats theirs (4).
+  game.lanes[0].you = [card('Arus', 9)];
+  game.lanes[0].foe = [card('Arus', 1)];
+  game.lanes[1].you = [card('Arus', 2)];
+  game.lanes[1].foe = [card('Arus', 3)];
+  endRound(game);
+  assert.equal(game.phase, 'over');
+  assert.equal(game.winner, 'you');
+});
+
+test('state: tiebreak uses total power played, not the discard pile', () => {
+  const tied = {
+    you: { life: 10, score: 3, powerPlayed: 50 },
+    foe: { life: 10, score: 3, powerPlayed: 40 },
+  };
+  assert.equal(tiebreakWinner(tied), 'you');
+  const tiedLow = {
+    you: { life: 10, score: 3, powerPlayed: 30 },
+    foe: { life: 10, score: 3, powerPlayed: 40 },
+  };
+  assert.equal(tiebreakWinner(tiedLow), 'foe');
 });
 
 test('state: ending a round resolves lanes and moves to the next round', () => {

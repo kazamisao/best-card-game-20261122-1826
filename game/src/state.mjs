@@ -28,6 +28,9 @@ export function newGame(seed) {
     lanes: [{ you: [], foe: [] }, { you: [], foe: [] }, { you: [], foe: [] }],
     lastResults: [null, null, null],
     lastPowers: [[0, 0], [0, 0], [0, 0]],
+    // True only right after a round was settled, until a card is played:
+    // the only time the last round's lane marks and powers may be shown.
+    justResolved: false,
     winner: null,
   };
   return game;
@@ -64,6 +67,7 @@ export function playCard(game, side, cardId, laneIndex) {
   player.hand.splice(at, 1);
   player.energy -= card.cost;
   game.lanes[laneIndex][side].push(card);
+  game.justResolved = false;
   return true;
 }
 
@@ -82,13 +86,15 @@ export function endRound(game) {
     lanePower(lane.you, game.tide),
     lanePower(lane.foe, game.tide),
   ]);
-  for (const lane of game.lanes) {
-    game.you.discard.push(...lane.you);
-    game.foe.discard.push(...lane.foe);
-    lane.you = [];
-    lane.foe = [];
-  }
-  const winner = gameWinner(game);
+  game.you.powerPlayed = (game.you.powerPlayed ?? 0)
+    + game.lanes.reduce((sum, lane) => sum + lane.you.reduce((s, c) => s + c.value, 0), 0);
+  game.foe.powerPlayed = (game.foe.powerPlayed ?? 0)
+    + game.lanes.reduce((sum, lane) => sum + lane.foe.reduce((s, c) => s + c.value, 0), 0);
+  game.justResolved = true;
+  // A round can kill both sides at once (each lane won deals 2 damage), so a
+  // double knockout goes to the tiebreak, never to the order of two ifs.
+  const bothDead = game.you.life <= 0 && game.foe.life <= 0;
+  const winner = bothDead ? tiebreakWinner(game) : gameWinner(game);
   if (winner) {
     game.winner = winner;
     game.phase = 'over';
@@ -99,17 +105,28 @@ export function endRound(game) {
     game.phase = 'over';
     return game;
   }
+  for (const lane of game.lanes) {
+    game.you.discard.push(...lane.you);
+    game.foe.discard.push(...lane.foe);
+    lane.you = [];
+    lane.foe = [];
+  }
   game.round += 1;
   startRound(game);
   return game;
 }
 
-/** After the last round: more life wins, then more score, then more power played. */
+/**
+ * After the last round: more life wins, then more score, then more total
+ * power played across the whole duel (tracked in powerPlayed, since the
+ * discard pile is reshuffled into the deck when it runs dry). A full tie
+ * goes to the player: home sand, home moon.
+ */
 export function tiebreakWinner(game) {
   if (game.you.life !== game.foe.life) return game.you.life > game.foe.life ? 'you' : 'foe';
   if (game.you.score !== game.foe.score) return game.you.score > game.foe.score ? 'you' : 'foe';
-  const youPower = game.you.discard.reduce((sum, c) => sum + c.value, 0);
-  const foePower = game.foe.discard.reduce((sum, c) => sum + c.value, 0);
+  const youPower = game.you.powerPlayed ?? 0;
+  const foePower = game.foe.powerPlayed ?? 0;
   if (youPower !== foePower) return youPower > foePower ? 'you' : 'foe';
   return 'you';
 }

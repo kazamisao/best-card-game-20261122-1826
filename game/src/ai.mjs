@@ -1,6 +1,9 @@
 // The opponent: a greedy reader of the table. It weighs every card it can
-// afford in every lane, prefers flipping a lane it loses into one it wins,
-// then the widest margin, and passes when nothing on the table is worth it.
+// afford in every lane and scores each play by the card's own strength
+// (value plus the tide bonus), with +10 for flipping a lane it loses into
+// one it wins, +2 for widening a lead it already holds, and -1 for feeding
+// a lane it still loses; a small jitter breaks ties. It passes when no play
+// scores above zero.
 import { lanePower } from './rules.mjs';
 
 const LANE_CAP = 3;
